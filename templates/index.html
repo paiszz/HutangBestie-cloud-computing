@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HutangBestie — Pencatat & Penagih Utang Teman</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Fira Sans"', 'sans-serif'],
+            mono: ['"Fira Code"', 'monospace'],
+          },
+          colors: {
+            bg: '#020617',
+            surface: '#0E1223',
+            elevated: '#1A1E2F',
+            primary: '#0F172A',
+            secondary: '#1E293B',
+            accent: '#22C55E',
+            borderc: '#334155',
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    .glow-accent {
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.15);
+    }
+  </style>
+</head>
+<body class="bg-bg text-[#F8FAFC] font-sans antialiased min-h-screen selection:bg-accent selection:text-[#0F172A]">
+
+  <!-- Header -->
+  <header class="sticky top-0 z-30 border-b border-borderc/80 bg-bg/90 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-accent/15 border border-accent/40 flex items-center justify-center text-accent shrink-0">
+          <!-- Wallet SVG icon -->
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a2.25 2.25 0 0 0-2.25-2.25H15a3 3 0 1 1-6 0H5.25A2.25 2.25 0 0 0 3 12m18 0v6a2.25 2.25 0 0 1-2.25 2.25H5.25A2.25 2.25 0 0 1 3 18v-6m18 0V9M3 12V9m18 0a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 9m18 0V6a2.25 2.25 0 0 0-2.25-2.25H5.25A2.25 2.25 0 0 0 3 6v3" />
+          </svg>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg sm:text-xl font-bold tracking-tight text-white">HutangBestie</h1>
+            <span class="text-[11px] font-mono px-2 py-0.5 rounded-full bg-secondary border border-borderc text-[#94A3B8]">JSON/Dict Store</span>
+          </div>
+          <p class="text-xs text-[#94A3B8]">Catat talangan teman &amp; tagih tanpa canggung</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <button onclick="openFriendModal()" class="cursor-pointer inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-secondary hover:bg-slate-700 border border-borderc text-sm font-medium text-white transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white">
+          <svg class="w-4 h-4 text-[#94A3B8]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M18 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0ZM3 19.235v-.11a6.375 6.375 0 0 1 12.75 0v.109A12.318 12.318 0 0 1 9.374 21c-2.331 0-4.512-.645-6.374-1.766Z" />
+          </svg>
+          Tambah Teman
+        </button>
+        <button onclick="openDebtModal()" class="cursor-pointer inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-accent hover:bg-green-400 text-[#0F172A] text-sm font-semibold transition-colors duration-200 glow-accent focus:outline-none focus:ring-2 focus:ring-white">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+          </svg>
+          Catat Utang
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+    <!-- KPI Summary Cards -->
+    <section aria-label="Ringkasan Piutang" class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div class="bg-surface border border-borderc rounded-xl p-5 transition-colors duration-200 hover:border-slate-500">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Total Piutang Aktif</span>
+          <span class="p-1.5 rounded-lg bg-amber-500/10 text-amber-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+          </span>
+        </div>
+        <p id="kpi-total-piutang" class="mt-3 text-2xl sm:text-3xl font-bold font-mono text-white">Rp 0</p>
+        <p id="kpi-unpaid-count" class="mt-1 text-xs text-[#94A3B8]">0 transaksi belum lunas</p>
+      </div>
+
+      <div class="bg-surface border border-borderc rounded-xl p-5 transition-colors duration-200 hover:border-slate-500">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Teman Belum Lunas</span>
+          <span class="p-1.5 rounded-lg bg-red-500/10 text-red-400">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" />
+            </svg>
+          </span>
+        </div>
+        <p id="kpi-friends-unpaid" class="mt-3 text-2xl sm:text-3xl font-bold font-mono text-white">0 Orang</p>
+        <p id="kpi-total-friends" class="mt-1 text-xs text-[#94A3B8]">Dari total 0 teman terdaftar</p>
+      </div>
+
+      <div class="bg-surface border border-borderc rounded-xl p-5 transition-colors duration-200 hover:border-slate-500">
+        <div class="flex items-center justify-between">
+          <span class="text-xs font-medium uppercase tracking-wider text-[#94A3B8]">Sudah Lunas</span>
+          <span class="p-1.5 rounded-lg bg-accent/10 text-accent">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+            </svg>
+          </span>
+        </div>
+        <p id="kpi-paid-count" class="mt-3 text-2xl sm:text-3xl font-bold font-mono text-accent">0 Transaksi</p>
+        <p id="kpi-reminders-count" class="mt-1 text-xs text-[#94A3B8]">0 pengingat tersimpan</p>
+      </div>
+    </section>
+
+    <!-- Navigation Tabs -->
+    <div class="flex flex-wrap items-center justify-between gap-3 border-b border-borderc pb-3">
+      <div class="flex items-center gap-2" role="tablist" aria-label="Entitas Aplikasi">
+        <button id="tab-debts" onclick="switchTab('debts')" role="tab" aria-selected="true" class="cursor-pointer px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-white border border-borderc transition-colors duration-150">
+          Daftar Utang (Debts)
+        </button>
+        <button id="tab-friends" onclick="switchTab('friends')" role="tab" aria-selected="false" class="cursor-pointer px-4 py-2 rounded-lg text-sm font-medium text-[#94A3B8] hover:text-white hover:bg-elevated transition-colors duration-150">
+          Daftar Teman (Friends)
+        </button>
+        <button id="tab-reminders" onclick="switchTab('reminders')" role="tab" aria-selected="false" class="cursor-pointer px-4 py-2 rounded-lg text-sm font-medium text-[#94A3B8] hover:text-white hover:bg-elevated transition-colors duration-150">
+          Riwayat Pengingat (Reminders)
+        </button>
+      </div>
+
+      <!-- Filter & Search for Debts -->
+      <div id="debts-controls" class="flex items-center gap-2 w-full sm:w-auto">
+        <input id="search-input" type="text" placeholder="Cari teman / alasan..." oninput="renderDebts()" class="w-full sm:w-52 px-3 py-1.5 rounded-lg bg-surface border border-borderc text-sm text-white placeholder-[#94A3B8] focus:outline-none focus:border-accent" />
+        <select id="status-filter" onchange="renderDebts()" class="cursor-pointer px-3 py-1.5 rounded-lg bg-surface border border-borderc text-sm text-white focus:outline-none focus:border-accent">
+          <option value="ALL">Semua Status</option>
+          <option value="Belum Lunas">Belum Lunas</option>
+          <option value="Lunas">Lunas</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Panel 1: Debts Table -->
+    <section id="panel-debts" class="bg-surface border border-borderc rounded-xl overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-elevated border-b border-borderc text-xs uppercase tracking-wider text-[#94A3B8]">
+              <th class="py-3.5 px-4 font-semibold">Teman</th>
+              <th class="py-3.5 px-4 font-semibold">Keterangan / Alasan</th>
+              <th class="py-3.5 px-4 font-semibold">Tanggal</th>
+              <th class="py-3.5 px-4 font-semibold">Nominal</th>
+              <th class="py-3.5 px-4 font-semibold">Status</th>
+              <th class="py-3.5 px-4 font-semibold text-right">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="debts-tbody" class="divide-y divide-borderc/60 text-sm"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Panel 2: Friends Grid -->
+    <section id="panel-friends" class="hidden grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></section>
+
+    <!-- Panel 3: Reminders Log -->
+    <section id="panel-reminders" class="hidden space-y-3"></section>
+
+    <!-- Polite Reminder Generator -->
+    <section id="reminder-generator" class="bg-surface border border-borderc rounded-xl p-5 space-y-4">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div>
+          <h2 class="text-base font-semibold text-white flex items-center gap-2">
+            <svg class="w-5 h-5 text-accent" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8.625 12a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H8.25m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0H12m4.125 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm0 0h-.375M21 12c0 4.556-4.03 8.25-9 8.25a9.764 9.764 0 0 1-2.555-.337A5.972 5.972 0 0 1 5.41 20.97a5.969 5.969 0 0 1-.474-.065 4.48 4.48 0 0 0 .978-2.025c.09-.457-.133-.901-.467-1.226C3.93 16.178 3 14.189 3 12c0-4.556 4.03-8.25 9-8.25s9 3.694 9 8.25Z" />
+            </svg>
+            Generator Pesan Pengingat Santai
+          </h2>
+          <p class="text-xs text-[#94A3B8]">Gabungan entitas <code class="font-mono text-slate-300">Friends + Debts + Reminders</code></p>
+        </div>
+
+        <div class="flex flex-wrap items-center gap-2">
+          <select id="gen-debt-select" class="cursor-pointer px-3 py-1.5 rounded-lg bg-elevated border border-borderc text-xs sm:text-sm text-white focus:outline-none focus:border-accent"></select>
+          <select id="gen-tone-select" class="cursor-pointer px-3 py-1.5 rounded-lg bg-elevated border border-borderc text-xs sm:text-sm text-white focus:outline-none focus:border-accent">
+            <option value="santai">Gaya Santai</option>
+            <option value="halus">Gaya Halus / Sopan</option>
+            <option value="pantun">Gaya Pantun Lucu</option>
+          </select>
+          <button onclick="generateReminderText()" class="cursor-pointer px-3.5 py-1.5 rounded-lg bg-secondary hover:bg-slate-700 border border-borderc text-xs sm:text-sm font-medium text-white transition-colors duration-150">
+            Generate
+          </button>
+        </div>
+      </div>
+
+      <textarea id="gen-message-box" rows="3" placeholder="Klik tombol 'Tagih' pada daftar utang atau pilih utang di atas lalu klik Generate..." class="w-full p-3 rounded-lg bg-bg border border-borderc text-sm text-white placeholder-[#94A3B8] focus:outline-none focus:border-accent"></textarea>
+
+      <div class="flex flex-wrap items-center justify-end gap-2.5">
+        <button onclick="copyGeneratedMessage()" class="cursor-pointer inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-secondary hover:bg-slate-700 border border-borderc text-xs sm:text-sm font-medium text-white transition-colors duration-150">
+          Salin Pesan
+        </button>
+        <button onclick="saveGeneratedReminder()" class="cursor-pointer inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-accent hover:bg-green-400 text-[#0F172A] text-xs sm:text-sm font-semibold transition-colors duration-150">
+          Simpan ke Riwayat Reminder
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Friend Modal -->
+  <div id="friend-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="friend-modal-title">
+    <div class="bg-surface border border-borderc rounded-xl w-full max-w-md p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 id="friend-modal-title" class="text-lg font-bold text-white">Tambah Teman</h3>
+        <button onclick="closeModal('friend-modal')" class="cursor-pointer text-[#94A3B8] hover:text-white p-1" aria-label="Tutup">&times;</button>
+      </div>
+      <form id="friend-form" onsubmit="submitFriend(event)" class="space-y-3">
+        <input type="hidden" id="friend-id" />
+        <div>
+          <label for="friend-name" class="block text-xs font-medium text-[#94A3B8] mb-1">Nama Lengkap *</label>
+          <input id="friend-name" type="text" required placeholder="Contoh: Budi Santoso" class="w-full px-3 py-2 rounded-lg bg-bg border border-borderc text-sm text-white focus:outline-none focus:border-accent" />
+        </div>
+        <div>
+          <label for="friend-nickname" class="block text-xs font-medium text-[#94A3B8] mb-1">Nama Panggilan</label>
+          <input id="friend-nickname" type="text" placeholder="Contoh: Budi Kopi" class="w-full px-3 py-2 rounded-lg bg-bg border border-borderc text-sm text-white focus:outline-none focus:border-accent" />
+        </div>
+        <div>
+          <label for="friend-phone" class="block text-xs font-medium text-[#94A3B8] mb-1">No. HP / WhatsApp</label>
+          <input id="friend-phone" type="text" placeholder="0812xxxxxxxx" class="w-full px-3 py-2 rounded-lg bg-bg border border-borderc text-sm text-white font-mono focus:outline-none focus:border-accent" />
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal('friend-modal')" class="cursor-pointer px-4 py-2 rounded-lg bg-secondary hover:bg-slate-700 text-sm text-white">Batal</button>
+          <button type="submit" class="cursor-pointer px-4 py-2 rounded-lg bg-accent hover:bg-green-400 text-[#0F172A] text-sm font-semibold">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Debt Modal -->
+  <div id="debt-modal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="debt-modal-title">
+    <div class="bg-surface border border-borderc rounded-xl w-full max-w-md p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 id="debt-modal-title" class="text-lg font-bold text-white">Catat Utang Baru</h3>
+        <button onclick="closeModal('debt-modal')" class="cursor-pointer text-[#94A3B8] hover:text-white p-1" aria-label="Tutup">&times;</button>
+      </div>
+      <form id="debt-form" onsubmit="submitDebt(event)" class="space-y-3">
+        <input type="hidden" id="debt-id" />
+        <div>
+          <label for="debt-friend" class="block text-xs font-medium text-[#94A3B8] mb-1">Pilih Teman *</label>
+          <select id="debt-friend" required class="cursor-pointer w-full px-3 py-2 rounded-lg bg-bg border border-borderc text-sm text-white focus:outline-none focus:border-accent"></select>
+        </div>
+        <div>
+          <label for="debt-amount" class="block text-xs font-medium text-[#94A3B8] mb-1">Nominal (Rp) *</label>
+          <input id="debt-amount" type="number" min="100" required placeholder="50000" class="w-full px-3 py-2 rounded-lg bg-bg border border-borderc text-sm text-white font-mono focus:outline-none focus:border-accent" />
+        </div>
+        <div>
+          <label for="debt-desc" class="block text-xs font-medium text-[#94A3B8] mb-1">Keterangan / Alasan *</label>
+          <input id="debt-desc" type="text" required placeholder="Contoh: Talangin Kopi Kenangan" class="w-full px-3 py-2 rounded-lg bg-bg border border-borderc text-sm text-white focus:outline-none focus:border-accent" />
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="debt-date" class="block text-xs font-medium text-[#94A3B8] mb-1">Tanggal</label>
+            <input id="debt-date" type="date" class="w-full px-3 py-2 rounded-lg bg-bg border border-borderc text-sm text-white font-mono focus:outline-none focus:border-accent" />
+          </div>
+          <div>
+            <label for="debt-status" class="block text-xs font-medium text-[#94A3B8] mb-1">Status</label>
+            <select id="debt-status" class="cursor-pointer w-full px-3 py-2 rounded-lg bg-bg border border-borderc text-sm text-white focus:outline-none focus:border-accent">
+              <option value="Belum Lunas">Belum Lunas</option>
+              <option value="Lunas">Lunas</option>
+            </select>
+          </div>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeModal('debt-modal')" class="cursor-pointer px-4 py-2 rounded-lg bg-secondary hover:bg-slate-700 text-sm text-white">Batal</button>
+          <button type="submit" class="cursor-pointer px-4 py-2 rounded-lg bg-accent hover:bg-green-400 text-[#0F172A] text-sm font-semibold">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="hidden fixed bottom-5 right-5 z-50 px-4 py-2.5 rounded-lg bg-elevated border border-accent/50 text-sm font-medium text-white shadow-lg"></div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
