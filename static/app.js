@@ -65,8 +65,8 @@ function switchTab(tab) {
     const active = t === tab;
     btn.setAttribute("aria-selected", active ? "true" : "false");
     btn.className = active
-      ? "cursor-pointer px-4 py-2 rounded-lg text-sm font-medium bg-secondary text-white border border-borderc transition-colors duration-150"
-      : "cursor-pointer px-4 py-2 rounded-lg text-sm font-medium text-[#94A3B8] hover:text-white hover:bg-elevated transition-colors duration-150";
+      ? "cursor-pointer px-4 py-2 rounded-lg text-sm font-semibold bg-cream text-ink border border-cream transition-colors duration-150"
+      : "cursor-pointer px-4 py-2 rounded-lg text-sm font-medium text-cream/75 hover:text-cream hover:bg-maroon/70 border border-cream/15 transition-colors duration-150";
     panel.classList.toggle("hidden", !active);
   });
   document.getElementById("debts-controls").classList.toggle("hidden", tab !== "debts");
@@ -86,7 +86,7 @@ function renderDebts() {
   });
 
   if (filtered.length === 0) {
-    tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-[#94A3B8]">Belum ada catatan utang yang sesuai.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="6" class="py-8 text-center text-taupe">Belum ada catatan utang yang sesuai.</td></tr>`;
     return;
   }
 
@@ -94,21 +94,21 @@ function renderDebts() {
     .map((d) => {
       const isPaid = d.status === "Lunas";
       const badge = isPaid
-        ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-accent/15 text-accent border border-accent/30">Lunas</span>`
-        : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-500/15 text-red-400 border border-red-500/30">Belum Lunas</span>`;
+        ? `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">Lunas</span>`
+        : `<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200">Belum Lunas</span>`;
 
       return `
-        <tr class="hover:bg-elevated/60 transition-colors duration-150">
-          <td class="py-3.5 px-4 font-medium text-white">${d.friend_name}</td>
-          <td class="py-3.5 px-4 text-slate-300">${d.description}</td>
-          <td class="py-3.5 px-4 font-mono text-xs text-[#94A3B8]">${d.date}</td>
-          <td class="py-3.5 px-4 font-mono font-semibold text-white">${formatIDR(d.amount)}</td>
+        <tr class="hover:bg-[#FAF7F0] transition-colors duration-150">
+          <td class="py-3.5 px-4 font-semibold text-ink">${d.friend_name}</td>
+          <td class="py-3.5 px-4 text-stone-700">${d.description}</td>
+          <td class="py-3.5 px-4 font-mono text-xs text-taupe">${d.date}</td>
+          <td class="py-3.5 px-4 font-mono font-bold text-ink">${formatIDR(d.amount)}</td>
           <td class="py-3.5 px-4">${badge}</td>
           <td class="py-3.5 px-4 text-right space-x-1.5 whitespace-nowrap">
-            ${!isPaid ? `<button onclick="quickTagih(${d.id})" class="cursor-pointer px-2.5 py-1 rounded bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 text-xs font-medium border border-amber-500/30">Tagih</button>` : ""}
-            ${!isPaid ? `<button onclick="settleDebt(${d.id})" class="cursor-pointer px-2.5 py-1 rounded bg-accent/15 hover:bg-accent/25 text-accent text-xs font-medium border border-accent/30">Lunas</button>` : ""}
-            <button onclick="editDebt(${d.id})" class="cursor-pointer px-2.5 py-1 rounded bg-secondary hover:bg-slate-700 text-slate-200 text-xs border border-borderc">Edit</button>
-            <button onclick="deleteDebt(${d.id})" class="cursor-pointer px-2.5 py-1 rounded bg-red-500/10 hover:bg-red-500/25 text-red-400 text-xs border border-red-500/30">Hapus</button>
+            ${!isPaid ? `<button onclick="quickTagih(${d.id})" class="cursor-pointer px-2.5 py-1 rounded bg-gold/20 hover:bg-gold/35 text-ink text-xs font-semibold border border-gold/50">Tagih</button>` : ""}
+            ${!isPaid ? `<button onclick="settleDebt(${d.id})" class="cursor-pointer px-2.5 py-1 rounded bg-maroon hover:bg-[#3A1616] text-cream text-xs font-semibold">Lunas</button>` : ""}
+            <button onclick="editDebt(${d.id})" class="cursor-pointer px-2.5 py-1 rounded bg-stone-100 hover:bg-stone-200 text-ink text-xs border border-stone-300">Edit</button>
+            <button onclick="deleteDebt(${d.id})" class="cursor-pointer px-2.5 py-1 rounded bg-red-50 hover:bg-red-100 text-red-700 text-xs border border-red-200">Hapus</button>
           </td>
         </tr>
       `;
@@ -119,7 +119,7 @@ function renderDebts() {
 function renderFriends() {
   const container = document.getElementById("panel-friends");
   if (state.friends.length === 0) {
-    container.innerHTML = `<div class="col-span-full bg-surface border border-borderc rounded-xl p-8 text-center text-[#94A3B8]">Belum ada teman terdaftar.</div>`;
+    container.innerHTML = `<div class="col-span-full bg-cream text-ink border border-gold/30 rounded-2xl p-8 text-center">Belum ada teman terdaftar.</div>`;
     return;
   }
 
@@ -127,26 +127,28 @@ function renderFriends() {
     .map((f) => {
       const hasDebt = f.total_unpaid > 0;
       return `
-        <div class="bg-surface border border-borderc rounded-xl p-5 flex flex-col justify-between gap-4 hover:border-slate-500 transition-colors duration-200">
-          <div>
-            <div class="flex items-start justify-between gap-2">
-              <div>
-                <h3 class="font-bold text-white text-base">${f.name}</h3>
-                <p class="text-xs text-[#94A3B8]">Panggilan: ${f.nickname} &bull; <span class="font-mono">${f.phone}</span></p>
+        <div class="bg-cream text-ink border border-gold/30 rounded-2xl p-2 shadow-md">
+          <div class="bg-white rounded-xl p-4 h-full flex flex-col justify-between gap-4 border border-maroon/10">
+            <div>
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <h3 class="font-bold text-ink text-base">${f.name}</h3>
+                  <p class="text-xs text-taupe">Panggilan: ${f.nickname} &bull; <span class="font-mono">${f.phone}</span></p>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-xs font-mono font-semibold ${hasDebt ? "bg-red-50 text-red-700 border border-red-200" : "bg-emerald-50 text-emerald-700 border border-emerald-200"}">
+                  ${f.unpaid_count} aktif
+                </span>
               </div>
-              <span class="px-2 py-0.5 rounded-full text-xs font-mono ${hasDebt ? "bg-red-500/15 text-red-400 border border-red-500/30" : "bg-accent/15 text-accent border border-accent/30"}">
-                ${f.unpaid_count} aktif
-              </span>
+              <div class="mt-4 pt-3 border-t border-stone-200 flex items-center justify-between">
+                <span class="text-xs text-taupe">Total Belum Lunas</span>
+                <span class="font-mono font-bold ${hasDebt ? "text-maroon" : "text-emerald-700"}">${formatIDR(f.total_unpaid)}</span>
+              </div>
             </div>
-            <div class="mt-4 pt-3 border-t border-borderc/60 flex items-center justify-between">
-              <span class="text-xs text-[#94A3B8]">Total Belum Lunas</span>
-              <span class="font-mono font-bold ${hasDebt ? "text-amber-400" : "text-accent"}">${formatIDR(f.total_unpaid)}</span>
+            <div class="flex items-center justify-end gap-2">
+              <button onclick="openDebtModal(${f.id})" class="cursor-pointer px-3 py-1.5 rounded-lg bg-maroon hover:bg-[#3A1616] text-cream text-xs font-semibold">+ Utang</button>
+              <button onclick="editFriend(${f.id})" class="cursor-pointer px-3 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200 text-ink text-xs border border-stone-300">Edit</button>
+              <button onclick="deleteFriend(${f.id})" class="cursor-pointer px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-xs border border-red-200">Hapus</button>
             </div>
-          </div>
-          <div class="flex items-center justify-end gap-2">
-            <button onclick="openDebtModal(${f.id})" class="cursor-pointer px-3 py-1.5 rounded-lg bg-accent/15 hover:bg-accent/25 text-accent text-xs font-medium border border-accent/30">+ Utang</button>
-            <button onclick="editFriend(${f.id})" class="cursor-pointer px-3 py-1.5 rounded-lg bg-secondary hover:bg-slate-700 text-slate-200 text-xs border border-borderc">Edit</button>
-            <button onclick="deleteFriend(${f.id})" class="cursor-pointer px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/25 text-red-400 text-xs border border-red-500/30">Hapus</button>
           </div>
         </div>
       `;
@@ -157,28 +159,28 @@ function renderFriends() {
 function renderReminders() {
   const container = document.getElementById("panel-reminders");
   if (state.reminders.length === 0) {
-    container.innerHTML = `<div class="bg-surface border border-borderc rounded-xl p-8 text-center text-[#94A3B8]">Belum ada riwayat pengingat tersimpan.</div>`;
+    container.innerHTML = `<div class="bg-cream text-ink border border-gold/30 rounded-2xl p-8 text-center">Belum ada riwayat pengingat tersimpan.</div>`;
     return;
   }
 
   container.innerHTML = state.reminders
     .map(
       (r) => `
-      <div class="bg-surface border border-borderc rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div class="bg-cream text-ink border border-gold/30 rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-sm">
         <div class="space-y-1">
-          <div class="flex items-center gap-2 text-xs text-[#94A3B8]">
-            <span class="font-semibold text-white">${r.friend_name}</span>
+          <div class="flex flex-wrap items-center gap-2 text-xs text-taupe">
+            <span class="font-bold text-maroon">${r.friend_name}</span>
             <span>&bull;</span>
             <span>${r.debt_description} (${formatIDR(r.debt_amount)})</span>
             <span>&bull;</span>
             <span class="font-mono">${r.sent_date}</span>
           </div>
-          <p class="text-sm text-slate-200 italic">"${r.message_template}"</p>
+          <p class="text-sm text-ink italic">"${r.message_template}"</p>
         </div>
         <div class="flex items-center gap-2 shrink-0">
-          <button onclick="copyText('${r.message_template.replace(/'/g, "\\'")}')" class="cursor-pointer px-3 py-1.5 rounded-lg bg-secondary hover:bg-slate-700 text-xs text-white border border-borderc">Salin</button>
-          <button onclick="editReminderPrompt(${r.id})" class="cursor-pointer px-3 py-1.5 rounded-lg bg-secondary hover:bg-slate-700 text-xs text-white border border-borderc">Edit</button>
-          <button onclick="deleteReminder(${r.id})" class="cursor-pointer px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/25 text-red-400 text-xs border border-red-500/30">Hapus</button>
+          <button onclick="copyText('${r.message_template.replace(/'/g, "\\'")}')" class="cursor-pointer px-3 py-1.5 rounded-lg bg-white hover:bg-stone-100 text-xs font-medium text-ink border border-maroon/20">Salin</button>
+          <button onclick="editReminderPrompt(${r.id})" class="cursor-pointer px-3 py-1.5 rounded-lg bg-white hover:bg-stone-100 text-xs font-medium text-ink border border-maroon/20">Edit</button>
+          <button onclick="deleteReminder(${r.id})" class="cursor-pointer px-3 py-1.5 rounded-lg bg-red-50 hover:bg-red-100 text-red-700 text-xs font-medium border border-red-200">Hapus</button>
         </div>
       </div>
     `
@@ -196,7 +198,7 @@ function populateSelects() {
   const unpaid = state.debts.filter((d) => d.status !== "Lunas");
   const list = unpaid.length ? unpaid : state.debts;
   genDebtSelect.innerHTML = list
-    .map((d) => `<option value="${d.id}">${d.friend_name} — ${d.description} (${formatIDR(d.amount)})</option>`)
+    .map((d) => `<option value="${d.id}" class="bg-burgundy text-cream">${d.friend_name} — ${d.description} (${formatIDR(d.amount)})</option>`)
     .join("");
 }
 
