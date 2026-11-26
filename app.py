@@ -1,10 +1,15 @@
+import copy
+import json
+import os
 from datetime import datetime
 from flask import Flask, jsonify, render_template, request
 
 app = Flask(__name__)
 
-# Hardcoded JSON/Dictionary data store (No database, per course requirement)
-DATA_STORE = {
+DATA_FILE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data.json")
+
+# Hardcoded JSON/Dictionary initial data (No database, per course requirement)
+DEFAULT_DATA = {
     "friends": [
         {
             "id": 1,
@@ -76,6 +81,24 @@ DATA_STORE = {
 }
 
 
+def load_data():
+    if os.path.exists(DATA_FILE):
+        with open(DATA_FILE, "r", encoding="utf-8") as f:
+            return json.load(f)
+    data = copy.deepcopy(DEFAULT_DATA)
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, ensure_ascii=False)
+    return data
+
+
+def save_data():
+    with open(DATA_FILE, "w", encoding="utf-8") as f:
+        json.dump(DATA_STORE, f, indent=2, ensure_ascii=False)
+
+
+DATA_STORE = load_data()
+
+
 def find_by_id(collection_name, item_id):
     return next((item for item in DATA_STORE[collection_name] if item["id"] == item_id), None)
 
@@ -138,6 +161,7 @@ def create_friend():
         "phone": (payload.get("phone") or "-").strip(),
     }
     DATA_STORE["friends"].append(friend)
+    save_data()
     return jsonify({**friend, **get_friend_totals(new_id)}), 201
 
 
@@ -154,6 +178,7 @@ def update_friend(friend_id):
         friend["nickname"] = payload["nickname"].strip() or friend["name"].split()[0]
     if "phone" in payload:
         friend["phone"] = payload["phone"].strip() or "-"
+    save_data()
     return jsonify({**friend, **get_friend_totals(friend_id)})
 
 
@@ -166,6 +191,7 @@ def delete_friend(friend_id):
     DATA_STORE["friends"] = [f for f in DATA_STORE["friends"] if f["id"] != friend_id]
     DATA_STORE["debts"] = [d for d in DATA_STORE["debts"] if d["friend_id"] != friend_id]
     DATA_STORE["reminders"] = [r for r in DATA_STORE["reminders"] if r["friend_id"] != friend_id]
+    save_data()
     return jsonify({"message": "Teman beserta catatan terkait berhasil dihapus"})
 
 
@@ -213,6 +239,7 @@ def create_debt():
         "status": payload.get("status") if payload.get("status") in ("Belum Lunas", "Lunas") else "Belum Lunas",
     }
     DATA_STORE["debts"].append(debt)
+    save_data()
     return jsonify({
         **debt,
         "friend_name": friend["name"],
@@ -252,6 +279,7 @@ def update_debt(debt_id):
         debt["status"] = payload["status"]
 
     friend = find_by_id("friends", debt["friend_id"])
+    save_data()
     return jsonify({
         **debt,
         "friend_name": friend["name"] if friend else "Unknown",
@@ -265,7 +293,9 @@ def settle_debt(debt_id):
     if not debt:
         return jsonify({"error": "Catatan utang tidak ditemukan"}), 404
     debt["status"] = "Lunas"
+    save_data()
     friend = find_by_id("friends", debt["friend_id"])
+    save_data()
     return jsonify({
         **debt,
         "friend_name": friend["name"] if friend else "Unknown",
@@ -280,6 +310,7 @@ def delete_debt(debt_id):
         return jsonify({"error": "Catatan utang tidak ditemukan"}), 404
     DATA_STORE["debts"] = [d for d in DATA_STORE["debts"] if d["id"] != debt_id]
     DATA_STORE["reminders"] = [r for r in DATA_STORE["reminders"] if r["debt_id"] != debt_id]
+    save_data()
     return jsonify({"message": "Catatan utang berhasil dihapus"})
 
 
@@ -359,6 +390,7 @@ def create_reminder():
         "sent_date": datetime.now().strftime("%Y-%m-%d"),
     }
     DATA_STORE["reminders"].append(reminder)
+    save_data()
     return jsonify(reminder), 201
 
 
@@ -370,6 +402,7 @@ def update_reminder(reminder_id):
     payload = request.get_json(silent=True) or {}
     if "message_template" in payload and payload["message_template"].strip():
         reminder["message_template"] = payload["message_template"].strip()
+    save_data()
     return jsonify(reminder)
 
 
@@ -379,6 +412,7 @@ def delete_reminder(reminder_id):
     if not reminder:
         return jsonify({"error": "Pengingat tidak ditemukan"}), 404
     DATA_STORE["reminders"] = [r for r in DATA_STORE["reminders"] if r["id"] != reminder_id]
+    save_data()
     return jsonify({"message": "Log pengingat berhasil dihapus"})
 
 
